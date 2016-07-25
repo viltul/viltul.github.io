@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>ViKTUK Matrix</title>
+<link rel="shortcut icon" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEYAAABGCAYAAABxLuKEAAABa0lEQVR4Xu2bQRICIQzA4P+P1lUuHkDSAS2j8dxhIaSlrLP1dv0K+NVaQVQpcLiSNR5axBVUBdNHJZiBQoIRDK0uLU5jNEZjYgQ0JsbLGrNqDOVNO1o6XlonTTtfuhDBjBSEdyoKWmMGpAQjGJpELU5jNEZjYgQ0Jsbr+BpDG7eshVDcdB0/c1cSDCWw2JlrzOrtmuamNeaw45VmGN1gU8lUagQ0xlOJVpdkY+g0s06vtFQSDCVw2LGuMacVXyqSNcZUoq4kv+SG/3ttvxJQPKaSqURd+dNUoikSwziPpv0Jnd/2GkMfPF9qLEIwi40b3TiNOe1FVSxR5tGmkqk0t+Q1QmM0RmNiBL5lzPUc9IUbPv/h7fX08R7f8wmmY6FgRqmpMX0yGqMxjQBtBDVGYzTmbcNoKi12yPhFFe3b6Y7s7nzp/PBzs75wwxOEVwzBUAKDOLwhGjPofAUjmCcBU8kaE6vGGqMxnzHmDoL8u8WGJEMdAAAAAElFTkSuQmCC">
+<script src="aes.js"></script>
+<script>
+function getParameterByName(name, url) {
+    if (!url) url = window.location.href;
+    name = name.replace(/[\[\]]/g, "\\$&");
+    var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
+        results = regex.exec(url);
+    if (!results) return null;
+    if (!results[2]) return '';
+    return decodeURIComponent(results[2].replace(/\+/g, " "));
+}
+
+function txt2bin(txt) {
+    var pad = '00000000',
+        bin = '',
+        c = '';
+    for(var i = 0, l = txt.length; i < l; i++) {
+        c = txt.charCodeAt(i).toString(2);
+        bin += (pad + c).substr(c.length);
+    }
+    return bin;
+}
+
+function bin2txt(bin) {
+    var split = bin.match(/.{8}/g),
+        txt = '';
+    for(var i = 0, l = split.length; i < l; i++) {
+        txt += String.fromCharCode(parseInt(split[i], 2));
+    }
+    return txt;
+}
+
+function download() {
+var link = document.createElement('a');
+link.setAttribute('href',draw());
+link.setAttribute('download','download');
+onload=link.click()
+}
+var pixels = 30;
+function draw() {
+    var canvas = document.getElementById("matrix");
+    var context = canvas.getContext("2d");
+    txt = getParameterByName('txt');;
+    bin = txt2bin(txt);
+    if (getParameterByName('aes') == "1"){
+    console.log("Using AES");
+    GibberishAES.size(128);
+    bin = txt2bin(GibberishAES.enc(txt, getParameterByName('pass')));
+    }
+    length = bin.length;
+    size = Math.ceil(Math.sqrt(length));
+    console.log("Size is "+size);
+    canvas.width = size*pixels;
+    canvas.height= size*pixels;
+    context.fillStyle = "#ffffff";
+    context.fillStyle = "#"+getParameterByName('color');
+    context.fillRect(0, 0, canvas.width, canvas.height)
+    context.fillStyle = "#000000"; 
+    for (y = 0; y < size; y++){
+     for (x = 0; x < size; x++){
+      if (bin[y*size+x]=='1'){
+      context.fillRect(x*pixels, y*pixels, pixels, pixels);
+      }
+     }
+    }
+   return canvas.toDataURL();
+}
+</script>
+</head>
+<body onload="draw()">
+<canvas id="matrix" width="0" height="0" onclick="download()"></canvas>
+</body>
+</html>
