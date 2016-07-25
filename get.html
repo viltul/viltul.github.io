@@ -26,24 +26,11 @@ function txt2bin(txt) {
     return bin;
 }
 
-function bin2txt(bin) {
-    var split = bin.match(/.{8}/g),
-        txt = '';
-    for(var i = 0, l = split.length; i < l; i++) {
-        txt += String.fromCharCode(parseInt(split[i], 2));
-    }
-    return txt;
-}
 
-function download() {
-var link = document.createElement('a');
-link.setAttribute('href',draw());
-link.setAttribute('download','download');
-onload=link.click()
-}
+
 var pixels = 30;
 function draw() {
-    var canvas = document.getElementById("matrix");
+    var canvas = document.createElement('canvas');
     var context = canvas.getContext("2d");
     txt = getParameterByName('txt');;
     bin = txt2bin(txt);
@@ -68,11 +55,11 @@ function draw() {
       }
      }
     }
-   return canvas.toDataURL();
+   document.getElementById("img").setAttribute('src', canvas.toDataURL());
 }
 </script>
 </head>
 <body onload="draw()">
-<canvas id="matrix" width="0" height="0" onclick="download()"></canvas>
+<img id="img">
 </body>
 </html>
